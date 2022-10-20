@@ -15,8 +15,6 @@ public class Client
     public static void main(String[] args ) {
         try {
             String centralAreaUrl = "https://ilp-rest.azurewebsites.net/centralArea";
-            String restaurantUrl = "https://ilp-rest.azurewebsites.net/restaurants";
-            String orderUrl = "https://ilp-rest.azurewebsites.net/orders";
 
             ObjectMapper om = new ObjectMapper();
             om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

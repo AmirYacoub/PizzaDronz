@@ -18,6 +18,12 @@ public class Restaurant
     @JsonProperty("menu")
     public ArrayList<Menu> menu;
 
+    /**
+     * Takes a url for the Rest Server, to return an array of the participating restaurants.
+     * @param url an absolute URL giving the base location of the JSON data.
+     * @return Array of the restaurants from the data at the specified URL.
+     * @throws IOException
+     */
     public static Restaurant[] getRestaurantsFromRestServer(URL url) throws IOException
     {
         ObjectMapper om = new ObjectMapper();

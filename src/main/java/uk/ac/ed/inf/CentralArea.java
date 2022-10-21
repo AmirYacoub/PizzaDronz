@@ -2,10 +2,13 @@ package uk.ac.ed.inf;
 
 import java.util.ArrayList;
 
+/**
+ * Singleton, as only one Central Area exists,
+ */
 public class CentralArea
 {
     private static CentralArea instance;
-    private ArrayList<LngLat> coords = new ArrayList<LngLat>();
+    private ArrayList<LngLat> coords = new ArrayList<>();
 
     private CentralArea()
     {

@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 
+/**
+ * Simple class to create objects that store, and retrieve individual Restaurant data.
+ */
 public class Restaurant
 {
     @JsonProperty("name")

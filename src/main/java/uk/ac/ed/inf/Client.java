@@ -7,7 +7,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 
+/**
+ * A simple client to GET JSON data from a remote server
+ */
 public class Client
 {
     public static ArrayList<CACoords> caArray;
@@ -20,8 +24,6 @@ public class Client
             om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             caArray = om.readValue(new URL(centralAreaUrl) , new TypeReference<ArrayList<CACoords>>() {});
             CentralArea.getInstance().setCoords();
-            System.out.println(CentralArea.getInstance().getCoords());
-
         }
         catch ( IOException e )
         {

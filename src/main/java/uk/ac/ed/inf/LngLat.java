@@ -2,7 +2,14 @@ package uk.ac.ed.inf;
 
 import java.util.ArrayList;
 
-
+/**
+ * <p>
+ *     Record responsible for representing a point, and methods responsible for the calculation of next moves
+ *     as well as the other methods to be used in the future to check if a move is valid or not.
+ * </p>
+ * @param lng the longitude of point.
+ * @param lat The latitude of point.
+ */
 record LngLat(double lng, double lat)
 {
     public LngLat(double lng, double lat)
@@ -11,20 +18,20 @@ record LngLat(double lng, double lat)
         this.lat = lat;
     }
 
-    static ArrayList<LngLat> points = new ArrayList<>(CentralArea.getInstance().getCoords());
 
     /**
-     *  Method checks if a point provided is on a specified line.
-     * @param line ArrayList containing 2 elements that would "draw" the line to check.
-     * @param point Point to be checked if its position lies on the line.
-     * @return Whether point lies on the line or not.
+     * Checks if point 3 is on the straight line created by joining point 1 and 2
+     * @param point1 First point of the line
+     * @param point2 Second point of the line
+     * @param pointCheck Point to be checked
+     * @return Whether pointCheck is lies on the line created by point 1 and point 2
      */
-    private boolean onLine(ArrayList<LngLat> line, LngLat point)
+    private boolean onLine(LngLat point1, LngLat point2, LngLat pointCheck)
     {
-        return point.lng <= Math.max(line.get(0).lng, line.get(1).lat)
-                && point.lng <= Math.min(line.get(0).lng, line.get(1).lat)
-                && point.lat <= Math.max(line.get(0).lng, line.get(1).lat)
-                && point.lat <= Math.min(line.get(0).lng, line.get(1).lat);
+        return pointCheck.lng <= Math.max(point1.lng, point2.lng)
+                && pointCheck.lng >= Math.min(point1.lng, point2.lng)
+                && pointCheck.lat <= Math.max(point1.lat, point2.lat)
+                && pointCheck.lat >= Math.min(point1.lat, point2.lat);
     }
 
     /**
@@ -47,40 +54,35 @@ record LngLat(double lng, double lat)
     }
 
     /**
-     *  Checks if two lines are intersecting each other.
-     * @param line1 First Line.
-     * @param line2 Second Line.
-     * @return Whether lines intersect each other or not.
+     * Takes 4 points, creating lines A and B from points A1,A2 and B1,B2 respectively, then checks if these lines intersect
+     * @param pointA1 First point of line A
+     * @param pointA2 Second point of line A
+     * @param pointB1 First point of line B
+     * @param pointB2 Second point of line B
+     * @return whether lines A and B intersect or not.
      */
-    private boolean isIntersecting(ArrayList<LngLat> line1, ArrayList<LngLat> line2)
+    private boolean isIntersecting(LngLat pointA1, LngLat pointA2, LngLat pointB1, LngLat pointB2)
     {
         // Four direction for two lines and points of other line
-        int dir1 = direction(line1.get(0), line1.get(1), line2.get(0));
-        int dir2 = direction(line1.get(0), line1.get(1), line2.get(1));
-        int dir3 = direction(line2.get(0), line2.get(1), line1.get(0));
-        int dir4 = direction(line2.get(0), line2.get(1), line1.get(1));
+        int dir1 = direction(pointA1, pointA2, pointB1);
+        int dir2 = direction(pointA1, pointA2, pointB2);
+        int dir3 = direction(pointB1, pointB2, pointA1);
+        int dir4 = direction(pointB1, pointB2, pointA2);
 
         // When intersecting
         if (dir1 != dir2 && dir3 != dir4)
             return true;
 
-        // When p2 of line2 are on the line1
-        if (dir1 == 0 && onLine(line1, line2.get(0)))
+        if (dir1 == 0 && onLine(pointA1, pointA2, pointB1))
             return true;
 
-        // When p1 of line2 are on the line1
-        if (dir2 == 0 && onLine(line1, line2.get(1)))
+        if (dir2 == 0 && onLine(pointA1, pointA2, pointB2))
             return true;
 
-        // When p2 of line1 are on the line2
-        if (dir3 == 0 && onLine(line2, line1.get(0)))
+        if (dir3 == 0 && onLine(pointB1,pointB2, pointA1))
             return true;
 
-        // When p1 of line1 are on the line2
-        if (dir4 == 0 && onLine(line2, line1.get(1)))
-            return true;
-
-        return false;
+        return dir4 == 0 && onLine(pointB1, pointB2, pointA2);
     }
 
     /**
@@ -90,35 +92,36 @@ record LngLat(double lng, double lat)
      */
     public boolean inCentralArea()
     {
-       int size = points.size();
+        ArrayList<LngLat> centralArea = new ArrayList<>(CentralArea.getInstance().getCoords());
+       int size = centralArea.size();
        LngLat point = new LngLat(lng,lat);
 
        //Checks if central area is a polygon or not.
        if (size<3)
            return false;
 
-       //Create a line to "infinity" on the same y-axis.
-       ArrayList<LngLat> exline = new ArrayList<>();
-       exline.add(point);
-       exline.add(new LngLat(999,lat));
+       //Create a point at an x-extreme on the same y-axis.
+       LngLat extreme = new LngLat(5,lat);
 
        int count = 0;
-       for (int i = 0; i == 0 ; i=i+1%size)
+       int i = 0;
+       do
        {
+           int next = (i+1)%size;
            //Forming a line from two consecutive points of the polygon.
-           ArrayList<LngLat> side = new ArrayList<>();
-           side.add(points.get(i));
-           side.add(points.get(i+1 % size));
-           if (isIntersecting(side, exline))
+           if (isIntersecting(centralArea.get(i), centralArea.get(next), point, extreme))
            {
                // If side is intersects exline.
-               if (direction(side.get(0), point, side.get(1)) == 0)
-                   return onLine(side, point);
+               if (direction(centralArea.get(i), centralArea.get(next), point) == 0){
+                   return onLine(centralArea.get(i), centralArea.get(next), point);
+               }
                count++;
            }
-       }
+           i = next;
+       }while (i!=0);
+
        // Returns true if count is odd.
-        return count % 2 != 0;
+        return (count & 1) == 1;
     }
 
 

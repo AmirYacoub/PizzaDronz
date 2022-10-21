@@ -1,10 +1,11 @@
 package uk.ac.ed.inf;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
+/**
+ * Simple class to create order objects, and calculate the cost of an order.
+ */
 public class Order
 {
 
@@ -35,29 +36,39 @@ public class Order
     public int getDeliveryCost(Restaurant[] participants, String... pizzas) throws Exception
     {
         int cost = 100;
-        ArrayList<String> combination = new ArrayList<>();
         Restaurant rest = null;
-        for (String pizza : pizzas)
-        {
-            for (Restaurant participant: participants)
+
+            int count = 0;
+            for (Restaurant p:participants)
             {
-                if (rest == null || rest.equals(participant))
+                for (int i=0; i<p.getMenu().size(); i++)
                 {
-                    for (int i = 0; i < participant.getMenu().size(); i++)
+                    if (pizzas[0].equals(p.getMenu().get(i).getName()))
                     {
-                        if (pizza.equals(participant.getMenu().get(i).getName()))
+                        rest = p;
+                        break;
+                    }
+                }
+            }
+            if (rest != null)
+            {
+                for (String pizza : pizzas)
+                {
+                    for (int i = 0; i < rest.getMenu().size(); i++)
+                    {
+                        if (pizza.equals(rest.getMenu().get(i).getName()))
                         {
-                            rest = participant;
-                            cost += participant.getMenu().get(i).getPriceInPence();
+                            count++;
+                            cost += rest.getMenu().get(i).getPriceInPence();
                         }
                     }
                 }
-                else
+                if (count != pizzas.length)
                 {
                     throw new InvalidPizzaCombination("Pizzas ordered are not from the same restaurant");
                 }
             }
-        }
+            else throw new Exception("Pizza ordered not in any menu");
         return cost;
     }
 
